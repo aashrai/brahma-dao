@@ -1,0 +1,135 @@
+package com.example;
+
+import com.brahma.dao.meta.SearchMeta;
+import com.brahma.dao.meta.SortType;
+import io.dropwizard.hibernate.AbstractDAO;
+import java.lang.Integer;
+import java.lang.String;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.ws.rs.ProcessingException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
+
+public class Zefo_BrahmaEntityDao extends AbstractDAO<BrahmaEntity> {
+  public Zefo_BrahmaEntityDao(SessionFactory sessionFactory) {
+    super(sessionFactory);
+  }
+
+  public BrahmaEntity createOrUpdate(BrahmaEntity brahmaEntity) {
+   
+    return persist(brahmaEntity);
+  }
+
+  public BrahmaEntity getById(Integer id) {
+    return get(id);
+  }
+
+  protected List<Predicate> getPredicateList(BrahmaEntity searchQuery,
+      CriteriaBuilder criteriaBuilder, Root<BrahmaEntity> from) {
+    List<Predicate> searchRestrictions = new ArrayList<>();
+    if (searchQuery.getId() != null) {
+      searchRestrictions.add(criteriaBuilder.equal(from.get("id"), searchQuery.getId()));
+    }
+    if (searchQuery.getOrderId() != null) {
+      searchRestrictions.add(criteriaBuilder.equal(from.get("orderId"), searchQuery.getOrderId()));
+    }
+    return searchRestrictions;
+  }
+  protected Query<BrahmaEntity> getSearchQuery(BrahmaEntity searchQuery) {
+    Session session = this.currentSession();
+    CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+    CriteriaQuery<BrahmaEntity> query = criteriaBuilder.createQuery(BrahmaEntity.class);
+    Root<BrahmaEntity> from = query.from(BrahmaEntity.class);
+    CriteriaQuery<BrahmaEntity> select = query.select(from);
+    List<Predicate> searchRestrictions = getPredicateList(searchQuery,criteriaBuilder,from);
+    select = select.where(searchRestrictions.toArray(new Predicate[searchRestrictions.size()]));
+    return session.createQuery(select);
+  }
+
+  protected Query<BrahmaEntity> getSearchQueryWithParams(BrahmaEntity searchQuery,
+      SearchMeta searchParams) {
+    Session session = this.currentSession();
+    CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+    CriteriaQuery<BrahmaEntity> query = criteriaBuilder.createQuery(BrahmaEntity.class);
+    Root<BrahmaEntity> from = query.from(BrahmaEntity.class);
+    CriteriaQuery<BrahmaEntity> select = query.select(from);
+    if (searchParams.getSortBy() != null) {
+      String sortByValue = searchParams.getSortBy();
+      if (searchParams.getSortType() == (SortType.DESC)) {
+        select.orderBy(criteriaBuilder.desc(from.get(sortByValue)));
+      }
+      else {
+        select.orderBy(criteriaBuilder.asc(from.get(sortByValue)));
+      }
+    }
+    List<Predicate> searchRestrictions = getPredicateList(searchQuery,criteriaBuilder,from);
+    select = select.where(searchRestrictions.toArray(new Predicate[searchRestrictions.size()]));
+    return session.createQuery(select);
+  }
+
+  protected Query<BrahmaEntity> getSearchQueryWithPredicateList(BrahmaEntity searchQuery, List<Predicate> searchRestrictions, Root<BrahmaEntity> from, CriteriaQuery<BrahmaEntity> query) {
+    Session session = this.currentSession();
+    CriteriaQuery<BrahmaEntity> select = query.select(from);
+    select = select.where(searchRestrictions.toArray(new Predicate[searchRestrictions.size()]));
+    return session.createQuery(select);
+  }
+   
+
+  protected Query<BrahmaEntity> getSearchQueryWithParamsAndPredicateList(BrahmaEntity searchQuery,
+      SearchMeta searchParams, List<Predicate> searchRestrictions, Root<BrahmaEntity> from, CriteriaQuery<BrahmaEntity> query) {
+    Session session = this.currentSession();
+    CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+    CriteriaQuery<BrahmaEntity> select = query.select(from);
+    if (searchParams.getSortBy() != null) {
+      String sortByValue = searchParams.getSortBy();
+      if (searchParams.getSortType() == (SortType.DESC)) {
+        select.orderBy(criteriaBuilder.desc(from.get(sortByValue)));
+      }
+      else {
+        select.orderBy(criteriaBuilder.asc(from.get(sortByValue)));
+      }
+    }
+    select = select.where(searchRestrictions.toArray(new Predicate[searchRestrictions.size()]));
+    return session.createQuery(select);
+  }
+
+  public List<BrahmaEntity> search(BrahmaEntity searchQuery) {
+    return getSearchQuery(searchQuery).list();
+  }
+
+  public List<BrahmaEntity> search(BrahmaEntity searchQuery, SearchMeta searchParams) throws
+      ProcessingException {
+    if (searchParams != null) {
+      Integer querySize = searchParams.getMaxResults() != null ? searchParams.getMaxResults() : 1000;
+      Integer queryIndex = searchParams.getFirstResult() != null ? searchParams.getFirstResult() : 0;
+      return getSearchQueryWithParams(searchQuery,searchParams).setMaxResults(querySize).setFirstResult(queryIndex).list();
+    }
+    throw new ProcessingException("searchParams object found null ");
+  }
+
+  public List<BrahmaEntity> search(BrahmaEntity searchQuery,
+      List<Predicate> searchRestrictions, Root<BrahmaEntity> from, CriteriaQuery<BrahmaEntity> query) {
+    return getSearchQueryWithPredicateList(searchQuery,searchRestrictions, from, query).list();
+  }
+
+  public List<BrahmaEntity> search(BrahmaEntity searchQuery, SearchMeta searchParams,
+      List<Predicate> searchRestrictions,Root<BrahmaEntity> from, CriteriaQuery<BrahmaEntity> query) throws ProcessingException {
+    if (searchParams != null) {
+      Integer querySize = searchParams.getMaxResults() != null ? searchParams.getMaxResults() : 1000;
+      Integer queryIndex = searchParams.getFirstResult() != null ? searchParams.getFirstResult() : 0;
+      return getSearchQueryWithParamsAndPredicateList(searchQuery,searchParams,searchRestrictions, from, query).setMaxResults(querySize).setFirstResult(queryIndex).list();
+    }
+    throw new ProcessingException("searchParams object found null ");
+  }
+
+  public BrahmaEntity searchUniqueResult(BrahmaEntity searchQuery) {
+    return getSearchQuery(searchQuery).uniqueResult();
+  }
+}
+

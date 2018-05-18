@@ -1,0 +1,10 @@
+package com.example;
+
+import com.brahma.dao.annotations.GenerateDao;
+
+
+@GenerateDao
+public class BrahmaEntity {
+    
+
+}

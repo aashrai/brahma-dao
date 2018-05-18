@@ -1,0 +1,24 @@
+package com.zefo.dagger;
+
+import com.example.Zefo_BrahmaEntityDao;
+import dagger.Module;
+import dagger.Provides;
+import javax.inject.Singleton;
+import org.hibernate.SessionFactory;
+
+@Module
+public class Zefo_DaoModule {
+
+	private SessionFactory sessionFactory;
+
+	public Zefo_DaoModule(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
+
+	@Singleton
+	@Provides
+	Zefo_BrahmaEntityDao getZefo_BrahmaEntityDao() {
+		return new Zefo_BrahmaEntityDao(sessionFactory);
+	}
+	
+}

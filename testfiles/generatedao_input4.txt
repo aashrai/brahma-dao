@@ -1,0 +1,12 @@
+package com.example;
+
+import com.brahma.dao.annotations.GenerateDao;
+import javax.persistence.Entity;
+
+
+@GenerateDao
+@Entity
+public class BrahmaEntity {
+    
+
+}

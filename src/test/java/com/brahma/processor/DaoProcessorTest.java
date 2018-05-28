@@ -26,7 +26,7 @@ public class DaoProcessorTest {
         );
 
         final JavaFileObject output = JavaFileObjects.forSourceString(
-                "com.example.Zefo_BrahmaEntityDao",
+                "com.example.Brahma_BrahmaEntityDao",
                 Joiner.on('\n').join(Collections.singleton(TestUtils.readLineByLineJava8
                         ("testfiles/generatedao_output1.txt"))
 
@@ -53,7 +53,7 @@ public class DaoProcessorTest {
         );
 
         final JavaFileObject output = JavaFileObjects.forSourceString(
-                "com.example.Zefo_BrahmaEntityDao",
+                "com.example.Brahma_BrahmaEntityDao",
                 Joiner.on('\n').join(Collections.singleton(TestUtils.readLineByLineJava8
                         ("testfiles/generatedao_output2.txt"))
 
@@ -132,22 +132,20 @@ public class DaoProcessorTest {
                     "BrahmaEntity", e.getMessage());
         }
     }
-
     @Test
-    public void generateDaoModuleTest() {
+    public void generateDaoSupportSearchVariationsTest() {
 
         final JavaFileObject input = JavaFileObjects.forSourceString(
                 "com.example.BrahmaEntity",
                 Joiner.on('\n').join(Collections.singleton(TestUtils.readLineByLineJava8
-                        ("testfiles/generatedao_input1.txt"))
+                        ("testfiles/generatedao_input6.txt"))
 
                 )
         );
-
         final JavaFileObject output = JavaFileObjects.forSourceString(
-                "com.zefo.dagger.Zefo_DaoModule",
+                "com.example.Brahma_BrahmaEntityDao",
                 Joiner.on('\n').join(Collections.singleton(TestUtils.readLineByLineJava8
-                        ("testfiles/generatedaomodule_output1.txt"))
+                        ("testfiles/generatedao_output6.txt"))
 
                 )
         );
@@ -158,7 +156,9 @@ public class DaoProcessorTest {
                 .compilesWithoutError()
                 .and()
                 .generatesSources(output);
+
     }
+
 
 
 }

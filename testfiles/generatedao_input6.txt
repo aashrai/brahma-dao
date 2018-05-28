@@ -4,21 +4,34 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import com.brahma.dao.annotations.Default;
+import com.brahma.testclass.TestEnum;
 
-@GenerateDao(supportSearchVariations = true)
+@GenerateDao
 @Entity
 public class BrahmaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-   
+    private String id;
+    @Default("12345")
     private String orderId;
-    public Integer getId() {
+    @Default(value = "YES", clazz = Enum.class)
+    private TestEnum testEnum;
+    public String getId() {
     	return this.id;
     }
 
     public String getOrderId() {
     	return this.orderId;
     }
-    
+    public void setOrderId(String orderId) {
+
+    }
+    public String getTestEnum() {
+        return null;
+    }
+    public void setTestEnum(TestEnum orderId) {
+
+    }
+
 }

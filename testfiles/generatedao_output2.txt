@@ -16,13 +16,14 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 
-public class Zefo_BrahmaEntityDao extends AbstractDAO<BrahmaEntity> {
-  public Zefo_BrahmaEntityDao(SessionFactory sessionFactory) {
+public class Brahma_BrahmaEntityDao extends AbstractDAO<BrahmaEntity> {
+
+  public Brahma_BrahmaEntityDao(SessionFactory sessionFactory) {
     super(sessionFactory);
   }
 
   public BrahmaEntity createOrUpdate(BrahmaEntity brahmaEntity) {
-   
+
     return persist(brahmaEntity);
   }
 
@@ -52,6 +53,14 @@ public class Zefo_BrahmaEntityDao extends AbstractDAO<BrahmaEntity> {
     return session.createQuery(select);
   }
 
+  public List<BrahmaEntity> search(BrahmaEntity searchQuery) {
+      return getSearchQuery(searchQuery).list();
+    }
+
+  public BrahmaEntity searchUniqueResult(BrahmaEntity searchQuery) {
+      return getSearchQuery(searchQuery).uniqueResult();
+    }
+
   protected Query<BrahmaEntity> getSearchQueryWithParams(BrahmaEntity searchQuery,
       SearchMeta searchParams) {
     Session session = this.currentSession();
@@ -79,7 +88,7 @@ public class Zefo_BrahmaEntityDao extends AbstractDAO<BrahmaEntity> {
     select = select.where(searchRestrictions.toArray(new Predicate[searchRestrictions.size()]));
     return session.createQuery(select);
   }
-   
+
 
   protected Query<BrahmaEntity> getSearchQueryWithParamsAndPredicateList(BrahmaEntity searchQuery,
       SearchMeta searchParams, List<Predicate> searchRestrictions, Root<BrahmaEntity> from, CriteriaQuery<BrahmaEntity> query) {
@@ -99,9 +108,6 @@ public class Zefo_BrahmaEntityDao extends AbstractDAO<BrahmaEntity> {
     return session.createQuery(select);
   }
 
-  public List<BrahmaEntity> search(BrahmaEntity searchQuery) {
-    return getSearchQuery(searchQuery).list();
-  }
 
   public List<BrahmaEntity> search(BrahmaEntity searchQuery, SearchMeta searchParams) throws
       ProcessingException {
@@ -128,8 +134,7 @@ public class Zefo_BrahmaEntityDao extends AbstractDAO<BrahmaEntity> {
     throw new ProcessingException("searchParams object found null ");
   }
 
-  public BrahmaEntity searchUniqueResult(BrahmaEntity searchQuery) {
-    return getSearchQuery(searchQuery).uniqueResult();
-  }
+
+
 }
 

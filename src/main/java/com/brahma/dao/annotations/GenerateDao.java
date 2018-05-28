@@ -9,4 +9,5 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 @Target(TYPE)
 @Retention(SOURCE)
 public @interface GenerateDao {
+    boolean supportSearchVariations() default false;
 }

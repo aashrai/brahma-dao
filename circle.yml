@@ -1,0 +1,33 @@
+version: 2
+jobs:
+  build:
+    environment:
+      - MAVEN_OPTS: -Xmx2096m
+
+    docker:
+      - image: circleci/openjdk:8-jdk-browsers
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          key: dao-{{ checksum "pom.xml" }}-v2
+
+      - run: mvn dependency:go-offline
+
+      - run: mvn package
+
+      - run: mvn cobertura:cobertura
+
+      - run: bash <(curl -s https://codecov.io/bash) -t 06a939e1-2d04-42f8-b58c-b25c69e29d67
+
+      - store_test_results:
+          path: target/surefire-reports
+
+      - store_artifacts:
+          path: target/brahma-dao-1.0-SNAPSHOT.jar
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: dao-{{ checksum "pom.xml" }}-v2

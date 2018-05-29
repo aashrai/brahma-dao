@@ -32,10 +32,7 @@ public class BrahmaEntity {
     }
     
 }
-
-
 ```
-
 
 ### Generated Code
 ```java

@@ -19,7 +19,7 @@ jobs:
 
       - run: mvn cobertura:cobertura
 
-      - run: bash <(curl -s https://codecov.io/bash) -t 06a939e1-2d04-42f8-b58c-b25c69e29d67
+      - run: bash <(curl -s https://codecov.io/bash) -t d37c76e2-c923-403c-95e4-865b1da6872c
 
       - store_test_results:
           path: target/surefire-reports

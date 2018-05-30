@@ -21,6 +21,7 @@ package com.brahma.dao.processor;
 import com.brahma.dao.annotations.GenerateDao;
 import com.brahma.dao.utils.AnnotatedClassUtils;
 import com.brahma.dao.utils.CreateDaoUtils;
+import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
@@ -32,6 +33,7 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
@@ -50,7 +52,7 @@ import java.util.Set;
  * @author sarthak
  * @version 1.0
  */
-
+@AutoService(Processor.class)
 public final class DaoProcessor extends AbstractProcessor {
     /**
      * A utils class to fetch details about the annotated element.

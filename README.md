@@ -1,7 +1,7 @@
 # Bramha-Dao
 Annotation processor to generate [Hibernate](http://hibernate.org/orm/) DAO.
 ## About
-Auto generate DAO for ```@Entity``` classes with support for annotation driven validations, defaults and much more. Changes to the entity classes are automatically reflected in the generated DAO class, have cleaner codebases and simpler PR's.
+Auto generate DAO for ```@Entity``` classes with support for annotation driven validations, defaults, sorting, filtering and much more. Changes to the entity classes are automatically reflected in the generated DAO class, have cleaner codebases and simpler PR's.
 > Focus on codebase not on **Predicates**.
 
 ## Example
@@ -21,6 +21,7 @@ public class Delivery {
 ```
 
 ### Generated Code
+Brahma-Dao create a DAO with CRUD methods already generated. You can always extend this class to add more functionality.
 ```java
 package com.example.dao;
 
@@ -64,7 +65,7 @@ public class Brahma_DeliveryDao extends AbstractDAO<Delivery> {
 }
 ```
 ### Go Beyond
-Create more powerful DAO's with support for validations, defaults and much more. Refer the [Wiki](https://github.com/gozefo/brahma-dao/wiki) to know more.
+Create more powerful DAO's with support for validations, defaults, sorting, filtering and much more. Refer the [Wiki](https://github.com/gozefo/brahma-dao/wiki) to know more.
 
 ## Project Brahma
 This repo is a part of project brahma, a suite of annotation processors built with :hearts: by folks at [Gozefo]( https://www.gozefo.com/) engineering to remove boilerplate in our java projects.

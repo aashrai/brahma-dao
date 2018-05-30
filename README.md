@@ -3,8 +3,8 @@
 # Bramha-Dao
 Annotation processor to generate [Hibernate](http://hibernate.org/orm/) DAO.
 ## About
-Auto generate DAO for ```@Entity``` classes with support for annotation driven validations, defaults and much more. Changes to the entity classes are automatically reflected in the generated DAO class. Have cleaner codebases and simpler PR's.
-Focus on codebase not on ```Predicates```.
+Auto generate DAO for ```@Entity``` classes with support for annotation driven validations, defaults and much more. Changes to the entity classes are automatically reflected in the generated DAO class, have cleaner codebases and simpler PR's.
+> Focus on codebase not on **Predicates**.
 
 ## Example
 To generate a DAO annotate your ```@Entity``` class with ```@GenerateDao```.

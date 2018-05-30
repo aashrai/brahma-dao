@@ -1,10 +1,31 @@
+/*
+ * Copyright (c) 2018 gozefo.
+ *
+ * Licensed under the MIT License;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://opensource.org/licenses/MIT
+ *
+ *THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *SOFTWARE
+ */
 package com.brahma.dao.utils;
 
 import com.brahma.dao.annotations.Default;
 import com.brahma.dao.annotations.GenerateDao;
 import com.brahma.dao.meta.SearchMeta;
 import com.brahma.dao.meta.SortType;
-import com.squareup.javapoet.*;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -15,7 +36,11 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -25,19 +50,46 @@ import javax.ws.rs.ProcessingException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CreateDaoUtils {
+/**
+ * Generates methods of dao class to be generated for the elements annotated with {@linkplain GenerateDao}.
+ * <p>
+ * {@linkplain com.brahma.dao.processor.DaoProcessor #generateDaoClasses()} {@linkplain
+ * com.brahma.dao.processor.DaoProcessor #generateAllSearchVariationsMethods(TypeSpec.Builder, ClassName)}
+ */
+public final class CreateDaoUtils {
+    /**
+     * setting default set of max results.
+     */
+    private static Integer defaultMaxResults = 1000;
 
+    /**
+     *
+     */
+    private CreateDaoUtils() {
 
-    public static MethodSpec createPersistMethod(TypeElement typeElement, ClassName entityClass, Element
-            annotatedElement, Messager messager) {
+    }
+
+    /**
+     * Created method that persists a object in db.
+     *
+     * @param typeElement      Represents a class or interface annotated element
+     * @param entityClass      Entity class annotated with {@linkplain GenerateDao} annotation.
+     * @param annotatedElement Element of the entity class
+     * @param messager         Used to report errors, warnings, and other notices
+     * @return Returns persist method
+     * @see "/testfiles/generatedao_output1.txt #createOrUpdate"
+     */
+    public static MethodSpec createPersistMethod(final TypeElement typeElement, final ClassName entityClass, final
+    Element
+            annotatedElement, final Messager messager) {
         MethodSpec.Builder createOrUpdate = MethodSpec.methodBuilder("createOrUpdate");
 
         annotatedElement.getEnclosedElements().stream().filter(field -> field.getKind().isField()).forEach(field -> {
 
 
             if (ClassName.get(field.asType()).isPrimitive()) {
-                messager.printMessage(Diagnostic.Kind.ERROR, "Primitive type cannot be added to predicate list.Please" +
-                        " check the type declared in the class with @GenerateDao");
+                messager.printMessage(Diagnostic.Kind.ERROR, "Primitive type cannot be added to predicate list."
+                        + "Please check the type declared in the class with @GenerateDao");
             }
 
             if ((field.getAnnotation(Default.class) != null)) {
@@ -73,6 +125,9 @@ public class CreateDaoUtils {
                 .build();
     }
 
+    /**
+     * @return Constructor of the generated dao class
+     */
     public static MethodSpec createConstructor() {
 
         return MethodSpec.constructorBuilder()
@@ -83,16 +138,23 @@ public class CreateDaoUtils {
 
     }
 
-    public static MethodSpec addToPredicateListMethod(Element annotatedElement,
-                                                      Messager messager, ClassName entityClass) {
+    /**
+     * @param annotatedElement Element of the entity class annotated with {@linkplain GenerateDao}
+     * @param messager         Used to report errors, warnings, and other notices
+     * @param entityClass      Entity class annotated with {@linkplain GenerateDao} annotation
+     * @return Returns method which add the attribute value to the Predicate {@linkplain Predicate} list
+     * @see "/testfiles/generatedao_output1.txt #getPredicateList"
+     */
+    public static MethodSpec addToPredicateListMethod(final Element annotatedElement,
+                                                      final Messager messager, final ClassName entityClass) {
 
         MethodSpec.Builder addToPredicateList = MethodSpec.methodBuilder("getPredicateList")
                 .returns(ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get(Predicate.class)))
                 .addModifiers(Modifier.PROTECTED)
                 .addParameter(ParameterSpec.builder(entityClass, "searchQuery").build())
                 .addParameter(ParameterSpec.builder(CriteriaBuilder.class, "criteriaBuilder").build())
-                .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(ClassName.get(Root.class), entityClass)
-                        , "from").build())
+                .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(ClassName.get(Root.class), entityClass),
+                        "from").build())
                 .addStatement("$T<$T> searchRestrictions = new $T<>()", ClassName.get(List.class), ClassName.get
                                 (Predicate.class),
                         ClassName.get(ArrayList.class));
@@ -100,8 +162,8 @@ public class CreateDaoUtils {
 
 
             if (ClassName.get(field.asType()).isPrimitive()) {
-                messager.printMessage(Diagnostic.Kind.ERROR, "Primitive type cannot be added to predicate list \n " +
-                        "please check the type declared in the class with @GenerateDao");
+                messager.printMessage(Diagnostic.Kind.ERROR, "Primitive type cannot be added to predicate list \n "
+                        + "please check the type declared in the class with @GenerateDao");
             }
 
             if ((field.getAnnotation(Transient.class) == null) && (field.getAnnotation
@@ -122,7 +184,14 @@ public class CreateDaoUtils {
 
     }
 
-    public static MethodSpec createGetSearchQueryMethodWithPredicateList(ClassName entityClass) {
+    /**
+     * @param entityClass Entity class annotated with {@linkplain GenerateDao} annotation
+     * @return Generates search method with user defined Predicate {@linkplain Predicate} list and adds attribute to
+     * that list only. The method returns {@linkplain Query}. The method "getSearchQueryWithPredicateList" is only
+     * generated when {@linkplain GenerateDao#supportSearchVariations()} is true.
+     * @see "/testfiles/generatedao_output1.txt #getSearchQueryWithPredicateList"
+     */
+    public static MethodSpec createGetSearchQueryMethodWithPredicateList(final ClassName entityClass) {
         return MethodSpec.methodBuilder("getSearchQueryWithPredicateList")
                 .returns(ParameterizedTypeName.get(ClassName.get(Query.class), entityClass))
                 .addModifiers(Modifier.PROTECTED)
@@ -130,8 +199,8 @@ public class CreateDaoUtils {
                         .build())
                 .addParameter(ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get(Predicate.class)),
                         "searchRestrictions")
-                .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(ClassName.get(Root.class), entityClass)
-                        , "from").build())
+                .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(ClassName.get(Root.class), entityClass),
+                        "from").build())
                 .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(ClassName.get(CriteriaQuery.class),
                         entityClass), "query").build())
                 .addStatement("$T session = this.currentSession()", Session.class)
@@ -144,8 +213,12 @@ public class CreateDaoUtils {
 
     }
 
-
-    public static MethodSpec createGetSearchQueryMethod(ClassName entityClass) {
+    /**
+     * @param entityClass Entity class annotated with {@linkplain GenerateDao} annotation
+     * @return Generates simple search method.The generated search method returns {@linkplain Query}.
+     * @see "/testfiles/generatedao_output1.txt #getSearchQuery"
+     */
+    public static MethodSpec createGetSearchQueryMethod(final ClassName entityClass) {
 
         return MethodSpec.methodBuilder("getSearchQuery")
                 .addModifiers(Modifier.PROTECTED)
@@ -168,7 +241,14 @@ public class CreateDaoUtils {
 
     }
 
-    public static MethodSpec createGetSearchQueryMethodWithParams(ClassName entityClass) {
+    /**
+     * @param entityClass Entity class annotated with {@linkplain GenerateDao} annotation
+     * @return Generates search method with SearchMeta {@linkplain SearchMeta}.The generated search method returns
+     * {@linkplain Query}.The method "getSearchQueryWithParams" is only generated when {@linkplain
+     * GenerateDao#supportSearchVariations()} is true.
+     * @see "/testfiles/generatedao_output1.txt #getSearchQueryWithParams"
+     */
+    public static MethodSpec createGetSearchQueryMethodWithParams(final ClassName entityClass) {
 
         return MethodSpec.methodBuilder("getSearchQueryWithParams")
                 .addModifiers(Modifier.PROTECTED)
@@ -201,7 +281,14 @@ public class CreateDaoUtils {
 
     }
 
-    public static MethodSpec createGetSearchQueryWithParamsAndPredicateList(ClassName entityClass) {
+    /**
+     * @param entityClass Entity class annotated with {@linkplain GenerateDao} annotation
+     * @return Generates search method with SearchMeta {@linkplain SearchMeta} and user defined Predicate {@linkplain
+     * Predicate} list and returns Query {@linkplain Query}. The method "getSearchQueryWithParamsAndPredicateList" is
+     * only generated when {@linkplain GenerateDao#supportSearchVariations()} is true.
+     * @see "/testfiles/generatedao_output1.txt #getSearchQueryWithParamsAndPredicateList"
+     */
+    public static MethodSpec createGetSearchQueryWithParamsAndPredicateList(final ClassName entityClass) {
         return MethodSpec.methodBuilder("getSearchQueryWithParamsAndPredicateList")
                 .addModifiers(Modifier.PROTECTED)
                 .returns(ParameterizedTypeName.get(ClassName.get(Query.class), entityClass))
@@ -210,8 +297,8 @@ public class CreateDaoUtils {
                 .addParameter(ParameterSpec.builder(SearchMeta.class, "searchParams").build())
                 .addParameter(ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get(Predicate.class)),
                         "searchRestrictions")
-                .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(ClassName.get(Root.class), entityClass)
-                        , "from").build())
+                .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(ClassName.get(Root.class), entityClass),
+                        "from").build())
                 .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(ClassName.get(CriteriaQuery.class),
                         entityClass), "query").build())
                 .addStatement("$T session = this.currentSession()", Session.class)
@@ -233,8 +320,13 @@ public class CreateDaoUtils {
 
     }
 
-
-    public static MethodSpec createSearchMethod(ClassName entityClass) {
+    /**
+     * @param entityClass Entity class annotated with {@linkplain GenerateDao} annotation
+     * @return Generates a overloaded search method for the query generated in {@linkplain
+     * #createGetSearchQueryMethod(ClassName)} The generated method returns the list of entity objects.
+     * @see "/testfiles/generatedao_output1.txt #search(ClassName})"
+     */
+    public static MethodSpec createSearchMethod(final ClassName entityClass) {
         return MethodSpec.methodBuilder("search")
                 .addModifiers(Modifier.PUBLIC)
                 .returns(ParameterizedTypeName.get(ClassName.get(List.class), entityClass))
@@ -245,7 +337,14 @@ public class CreateDaoUtils {
 
     }
 
-    public static MethodSpec createSearchMethodWithParams(ClassName entityClass) {
+    /**
+     * @param entityClass Entity class annotated with {@linkplain GenerateDao} annotation
+     * @return Generates a overloaded search method for the query generated in {@linkplain
+     * #createGetSearchQueryMethodWithParams(ClassName)}. The generated method returns the list of entity objects.The
+     * method "searchQuery" is only generated when {@linkplain GenerateDao#supportSearchVariations()} is true.
+     * @see "/testfiles/generatedao_output1.txt #search"
+     */
+    public static MethodSpec createSearchMethodWithParams(final ClassName entityClass) {
         return MethodSpec.methodBuilder("search")
                 .addModifiers(Modifier.PUBLIC)
                 .addException(ProcessingException.class)
@@ -255,7 +354,7 @@ public class CreateDaoUtils {
                 .addParameter(ParameterSpec.builder(SearchMeta.class, "searchParams").build())
                 .beginControlFlow("if (searchParams != null)")
                 .addStatement("$T querySize = $N.getMaxResults() != null ? $N.getMaxResults() : $L", Integer.class,
-                        "searchParams", "searchParams", 1000)
+                        "searchParams", "searchParams", defaultMaxResults)
                 .addStatement("$T queryIndex = $N.getFirstResult() != null ? $N.getFirstResult() : $L", Integer
                         .class, "searchParams", "searchParams", 0)
                 .addStatement("return $N($N,$N).setMaxResults($N).setFirstResult($N).list()",
@@ -266,7 +365,14 @@ public class CreateDaoUtils {
 
     }
 
-    public static MethodSpec createSearchMethodWithPredicateList(ClassName entityClass) {
+    /**
+     * @param entityClass Entity class annotated with {@linkplain GenerateDao} annotation
+     * @return Generates a overloaded search method for the query generated in #createSearchMethodWithPredicateList
+     * (ClassName). The generated method returns the list of entity objects.The method "searchQuery" is only generated
+     * when {@linkplain GenerateDao#supportSearchVariations()} is true.
+     * @see "/testfiles/generatedao_output1.txt #search(ClassName, Predicate, Root, CriteriaQuery)"
+     */
+    public static MethodSpec createSearchMethodWithPredicateList(final ClassName entityClass) {
         return MethodSpec.methodBuilder("search")
                 .addModifiers(Modifier.PUBLIC)
                 .returns(ParameterizedTypeName.get(ClassName.get(List.class), entityClass))
@@ -274,8 +380,8 @@ public class CreateDaoUtils {
                         .build())
                 .addParameter(ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get(Predicate.class)),
                         "searchRestrictions")
-                .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(ClassName.get(Root.class), entityClass)
-                        , "from").build())
+                .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(ClassName.get(Root.class), entityClass),
+                        "from").build())
                 .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(ClassName.get(CriteriaQuery.class),
                         entityClass), "query").build())
                 .addStatement("return $N($N, $N, $N, $N).list()", "getSearchQueryWithPredicateList", "searchQuery",
@@ -283,7 +389,14 @@ public class CreateDaoUtils {
 
     }
 
-    public static MethodSpec createSearchMethodWithParamsAndPredicateList(ClassName entityClass) {
+    /**
+     * @param entityClass Entity class annotated with {@linkplain GenerateDao} annotation
+     * @return Generates a overloaded search method for the query generated in {@linkplain
+     * #createSearchMethodWithPredicateList(ClassName)}. The generated method returns the list of entity objects.The
+     * method "searchQuery" is only generated when {@linkplain GenerateDao#supportSearchVariations()} is true.
+     * @see "/testfiles/generatedao_output1.txt #search(ClassName, SearchMeta, Predicate, Root, CriteriaQuery)"
+     */
+    public static MethodSpec createSearchMethodWithParamsAndPredicateList(final ClassName entityClass) {
         return MethodSpec.methodBuilder("search")
                 .addModifiers(Modifier.PUBLIC)
                 .addException(ProcessingException.class)
@@ -293,14 +406,14 @@ public class CreateDaoUtils {
                 .addParameter(ParameterSpec.builder(SearchMeta.class, "searchParams").build())
                 .addParameter(ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get(Predicate.class)),
                         "searchRestrictions")
-                .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(ClassName.get(Root.class), entityClass)
-                        , "from").build())
+                .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(ClassName.get(Root.class), entityClass),
+                        "from").build())
                 .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(ClassName.get(CriteriaQuery.class),
                         entityClass), "query").build())
 
                 .beginControlFlow("if (searchParams != null)")
                 .addStatement("$T querySize = $N.getMaxResults() != null ? $N.getMaxResults() : $L", Integer.class,
-                        "searchParams", "searchParams", 1000)
+                        "searchParams", "searchParams", defaultMaxResults)
                 .addStatement("$T queryIndex = $N.getFirstResult() != null ? $N.getFirstResult() : $L", Integer
                         .class, "searchParams", "searchParams", 0)
                 .addStatement("return $N($N,$N,$N,$N,$N).setMaxResults($N).setFirstResult($N).list()",
@@ -312,8 +425,16 @@ public class CreateDaoUtils {
 
     }
 
-    public static MethodSpec createGetByIdMethod(ClassName entityClass, Element annotatedElement,
-                                                 TypeElement typeElement) {
+    /**
+     * @param entityClass      Entity class annotated with {@linkplain GenerateDao} annotation
+     * @param annotatedElement Element of the entity class
+     * @param typeElement      Represents a class or interface annotated element
+     * @return Generates method which returns a row of the entity table with value of the field annotated with @Id
+     * {@linkplain Id}
+     * @see "/testfiles/generatedao_output1.txt #getById()"
+     */
+    public static MethodSpec createGetByIdMethod(final ClassName entityClass, final Element annotatedElement,
+                                                 final TypeElement typeElement) {
 
         for (Element variableElement : annotatedElement.getEnclosedElements()) {
             if (variableElement instanceof VariableElement && variableElement.getAnnotation(Id.class) != null) {
@@ -327,12 +448,17 @@ public class CreateDaoUtils {
 
             }
         }
-        throw new AssertionError("No field found with @Id annotation in class " +
-                AnnotatedClassUtils.getSimpleName(typeElement));
+        throw new AssertionError("No field found with @Id annotation in class "
+                + AnnotatedClassUtils.getSimpleName(typeElement));
 
     }
 
-    public static MethodSpec createUniqueResultMethod(ClassName entityClass) {
+    /**
+     * @param entityClass Entity class annotated with {@linkplain GenerateDao} annotation
+     * @return Generates search method which returns unique result from the retrieved list of objects.
+     * @see "/testfiles/generatedao_output1.txt #searchUniqueResult"
+     */
+    public static MethodSpec createUniqueResultMethod(final ClassName entityClass) {
 
         return MethodSpec.methodBuilder("searchUniqueResult")
                 .addModifiers(Modifier.PUBLIC)
@@ -343,7 +469,12 @@ public class CreateDaoUtils {
 
     }
 
-    public static void checkEntity(RoundEnvironment roundEnv) {
+    /**
+     * Validation for the class annotated with {@linkplain GenerateDao}.
+     *
+     * @param roundEnv contains all the classes/elements of the project
+     */
+    public static void entityValidation(final RoundEnvironment roundEnv) {
         roundEnv.getElementsAnnotatedWith(GenerateDao.class).stream().filter(annotatedElement -> annotatedElement
                 .getAnnotation(Entity.class) == null).forEach(annotatedElement -> {
             throw new AssertionError("@GenerateDao can only be used for Entity Classes " + AnnotatedClassUtils

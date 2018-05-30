@@ -1,5 +1,3 @@
-[![CircleCI](https://circleci.com/gh/gozefo/brahma-dao/tree/master.svg?style=svg)](https://circleci.com/gh/gozefo/brahma-dao/tree/master)
-[![codecov](https://codecov.io/gh/gozefo/brahma-dao/branch/master/graph/badge.svg)](https://codecov.io/gh/gozefo/brahma-dao)
 # Bramha-Dao
 Annotation processor to generate [Hibernate](http://hibernate.org/orm/) DAO.
 ## About

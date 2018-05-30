@@ -1,9 +1,9 @@
 [![CircleCI](https://circleci.com/gh/gozefo/brahma-dao/tree/master.svg?style=svg)](https://circleci.com/gh/gozefo/brahma-dao/tree/master)
 [![codecov](https://codecov.io/gh/gozefo/brahma-dao/branch/master/graph/badge.svg)](https://codecov.io/gh/gozefo/brahma-dao)
 # Bramha-Dao
-Annotation processor to generate hibernate DAO.
+Annotation processor to generate [Hibernate](http://hibernate.org/orm/) DAO.
 ## About
-Auto generate DAO for ```@Entity``` classes with support for annotation driven validations, defaults and much more.
+Auto generate DAO for ```@Entity``` classes with support for annotation driven validations, defaults and much more. Changes to the entity classes are automatically reflected in the generated DAO class. Have cleaner codebases and simpler PR's.
 Focus on codebase not on ```Predicates```.
 
 ## Example

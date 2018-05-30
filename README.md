@@ -1,36 +1,24 @@
 [![CircleCI](https://circleci.com/gh/gozefo/brahma-dao/tree/master.svg?style=svg)](https://circleci.com/gh/gozefo/brahma-dao/tree/master)
 [![codecov](https://codecov.io/gh/gozefo/brahma-dao/branch/master/graph/badge.svg)](https://codecov.io/gh/gozefo/brahma-dao)
 # Bramha-Dao
-An annotation processor which auto generates dao classes for specified entity classes with ```@GenerateDao``` annotation.
-## About 
-Simplify writing dao classes for specified entities by generating dao with basic funcionalities. ```@GenerateDao``` can only be used with [```@Entity```](https://docs.oracle.com/javaee/6/api/javax/persistence/Entity.html) annotated classes.
+Annotation processor to generate hibernate DAO.
+## About
+Auto generate DAO for ```@Entity``` classes with support for annotation driven validations, defaults and much more.
+Focus on codebase not on ```Predicates```.
 
 ## Example
-Here's a entity class for which a dao needs to be generated.
+To generate a DAO annotate your ```@Entity``` class with ```@GenerateDao```.
 ```java
 package com.example;
-import com.brahma.dao.annotations.GenerateDao;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 
-@GenerateDao
+@GenerateDao //Annotation to generate DAO class
 @Entity
-public class BrahmaEntity {
+public class Delivery {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-   
     private String orderId;
-    public Integer getId() {
-    	return this.id;
-    }
-
-    public String getOrderId() {
-    	return this.orderId;
-    }
-    
+    private String customerName;
 }
 ```
 
@@ -38,36 +26,23 @@ public class BrahmaEntity {
 ```java
 package com.example.dao;
 
-import com.brahma.testclass.TestEnum;
-import io.dropwizard.hibernate.AbstractDAO;
-import java.lang.String;
-import java.util.ArrayList;
-import java.util.List;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
+public class Brahma_DeliveryDao extends AbstractDAO<Delivery> {
 
-public class Brahma_BrahmaEntityDao extends AbstractDAO<BrahmaEntity> {
-
-  public Brahma_BrahmaEntityDao(SessionFactory sessionFactory) {
+  public Brahma_DeliveryDao(SessionFactory sessionFactory) {
     super(sessionFactory);
   }
 
-  public BrahmaEntity createOrUpdate(BrahmaEntity brahmaEntity) {
-
-    return persist(brahmaEntity);
+  public Delivery createOrUpdate(Delivery delivery) {
+    return persist(delivery);
   }
 
-  public BrahmaEntity getById(Integer id) {
+  public Delivery getById(Integer id) {
     return get(id);
   }
 
-  protected List<Predicate> getPredicateList(BrahmaEntity searchQuery,
-      CriteriaBuilder criteriaBuilder, Root<BrahmaEntity> from) {
+  //Any attribute/column changes in the  entity class are automatically reflected here
+  protected List<Predicate> getPredicateList(Delivery searchQuery,
+      CriteriaBuilder criteriaBuilder, Root<Delivery> from) {
     List<Predicate> searchRestrictions = new ArrayList<>();
     if (searchQuery.getId() != null) {
       searchRestrictions.add(criteriaBuilder.equal(from.get("id"), searchQuery.getId()));
@@ -75,31 +50,26 @@ public class Brahma_BrahmaEntityDao extends AbstractDAO<BrahmaEntity> {
     if (searchQuery.getOrderId() != null) {
       searchRestrictions.add(criteriaBuilder.equal(from.get("orderId"), searchQuery.getOrderId()));
     }
+    if (searchQuery.getCustomerName() != null) {
+      searchRestrictions.add(criteriaBuilder.equal(from.get("customerName"), searchQuery.getCustomerName()));
+    }
     return searchRestrictions;
   }
-  protected Query<BrahmaEntity> getSearchQuery(BrahmaEntity searchQuery) {
-    Session session = this.currentSession();
-    CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-    CriteriaQuery<BrahmaEntity> query = criteriaBuilder.createQuery(BrahmaEntity.class);
-    Root<BrahmaEntity> from = query.from(BrahmaEntity.class);
-    CriteriaQuery<BrahmaEntity> select = query.select(from);
-    List<Predicate> searchRestrictions = getPredicateList(searchQuery,criteriaBuilder,from);
-    select = select.where(searchRestrictions.toArray(new Predicate[searchRestrictions.size()]));
-    return session.createQuery(select);
-  }
 
-  public List<BrahmaEntity> search(BrahmaEntity searchQuery) {
+  public List<Delivery> search(Delivery searchQuery) {
       return getSearchQuery(searchQuery).list();
   }
 
-  public BrahmaEntity searchUniqueResult(BrahmaEntity searchQuery) {
+  public Delivery searchUniqueResult(Delivery searchQuery) {
       return getSearchQuery(searchQuery).uniqueResult();
     }
 }
 ```
+### Go Beyond
+Create more powerful DAO's with support for validations, defaults and much more. Refer the [Wiki](https://github.com/gozefo/brahma-dao/wiki) to know more.
 
 ## Project Brahma
-This repo is a part of project brahma, a suite of annotation processors built with :hearts: by folks at [Gozefo]( https://www.gozefo.com/) enginnering to remove boilerplate in our java projects.
+This repo is a part of project brahma, a suite of annotation processors built with :hearts: by folks at [Gozefo]( https://www.gozefo.com/) engineering to remove boilerplate in our java projects.
 
 ## Download
 

@@ -21,7 +21,8 @@ public class Delivery {
 ```
 
 ### Generated Code
-Brahma-Dao create a DAO with CRUD methods already generated. You can always extend this class to add more functionality.
+Brahma-Dao create a DAO with CRUD methods already generated and a basic search API. We provide a more in depth search api, filtering, sorting etc, please refer the [Wiki](https://github.com/gozefo/brahma-dao/wiki) to know more. 
+You can always extend this class to add more custom functionality.
 ```java
 package com.example.dao;
 

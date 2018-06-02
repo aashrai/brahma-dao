@@ -4,11 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.zefo.brahma</groupId>
+    <groupId>com.gozefo.brahma</groupId>
     <artifactId>brahma-dao</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>Brahma Dao</name>
-    <description>An annotaion processor to generate dao classes with basic functionality</description>
+    <description>An annotation processor to generate typesafe DAO classes from @Entity classes</description>
     <url>https://github.com/gozefo/brahma-dao</url>
     <licenses>
         <license>
@@ -40,6 +40,12 @@
         <dropwizard.version>1.1.0</dropwizard.version>
         <auto-service.version>1.0-rc4</auto-service.version>
     </properties>
+    <distributionManagement>
+        <repository>
+            <id>java-os</id>
+            <url>https://api.bintray.com/maven/gozefo/java-os/brahma-dao/;publish=1</url>
+        </repository>
+    </distributionManagement>
     <build>
         <plugins>
             <plugin>

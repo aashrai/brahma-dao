@@ -72,7 +72,14 @@ Create more powerful DAO's with support for validations, defaults, sorting, filt
 This repo is a part of project brahma, a suite of annotation processors built with :hearts: by folks at [Gozefo]( https://www.gozefo.com/) engineering to remove boilerplate in our java projects.
 
 ## Download
-
+```xml
+<!-- https://mvnrepository.com/artifact/com.gozefo.brahma/brahma-dao -->
+<dependency>
+    <groupId>com.gozefo.brahma</groupId>
+    <artifactId>brahma-dao</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
 
 ## License
 MIT License

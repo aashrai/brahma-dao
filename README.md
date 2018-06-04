@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/gozefo/brahma-dao/tree/master.svg?style=svg)](https://circleci.com/gh/gozefo/brahma-dao/tree/master)
+[![codecov](https://codecov.io/gh/gozefo/brahma-dao/branch/master/graph/badge.svg)](https://codecov.io/gh/gozefo/brahma-dao)
 # Bramha-Dao
 Annotation processor to generate [Hibernate](http://hibernate.org/orm/) DAO.
 ## About
@@ -21,7 +23,7 @@ public class Delivery {
 ```
 
 ### Generated Code
-Brahma-Dao create a DAO with CRUD methods already generated and a basic search API. We provide a more in depth search api, filtering, sorting etc, please refer the [Wiki](https://github.com/gozefo/brahma-dao/wiki) to know more. 
+Brahma-Dao create a DAO with CRUD methods already generated and a basic search API. We provide a more in depth search api, filtering, sorting etc, please refer the [Wiki](https://github.com/gozefo/brahma-dao/wiki) to know more.
 You can always extend this class to add more custom functionality.
 ```java
 package com.example.dao;

@@ -113,7 +113,7 @@ public final class DaoProcessor extends AbstractProcessor {
     private void generateDao(final RoundEnvironment roundEnv) {
 
 
-        CreateDaoUtils.entityValidation(roundEnv);
+        CreateDaoUtils.entityValidation(roundEnv, messager);
         Set<Element> daoClasses = new HashSet<>(roundEnv.getElementsAnnotatedWith(GenerateDao.class));
         generateDaoClasses(daoClasses);
 
@@ -143,7 +143,7 @@ public final class DaoProcessor extends AbstractProcessor {
                     entityClass);
             MethodSpec uniqueResult = CreateDaoUtils.createUniqueResultMethod(entityClass);
             MethodSpec createGetById = CreateDaoUtils.createGetByIdMethod(entityClass, annotatedElement,
-                    typeElement);
+                    typeElement, messager);
             MethodSpec searchMethod = CreateDaoUtils.createSearchMethod(entityClass);
             MethodSpec addToPredicateListMethod = CreateDaoUtils.addToPredicateListMethod(annotatedElement,
                     messager, entityClass);

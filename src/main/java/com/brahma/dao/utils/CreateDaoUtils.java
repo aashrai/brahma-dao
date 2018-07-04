@@ -21,11 +21,7 @@ import com.brahma.dao.annotations.Default;
 import com.brahma.dao.annotations.GenerateDao;
 import com.brahma.dao.meta.SearchMeta;
 import com.brahma.dao.meta.SortType;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -36,16 +32,11 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.tools.Diagnostic;
 import javax.ws.rs.ProcessingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -80,16 +71,14 @@ public final class CreateDaoUtils {
      * @see "/testfiles/generatedao_output1.txt #createOrUpdate"
      */
     public static MethodSpec createPersistMethod(final TypeElement typeElement, final ClassName entityClass, final
-    Element
-            annotatedElement, final Messager messager) {
+    Element annotatedElement, final Messager messager) {
         MethodSpec.Builder createOrUpdate = MethodSpec.methodBuilder("createOrUpdate");
 
         annotatedElement.getEnclosedElements().stream().filter(field -> field.getKind().isField()).forEach(field -> {
 
 
             if (ClassName.get(field.asType()).isPrimitive()) {
-                messager.printMessage(Diagnostic.Kind.ERROR, "Primitive type cannot be added to predicate list."
-                        + "Please check the type declared in the class with @GenerateDao");
+                MessagingUtils.error(messager, field, "Primitive types are not supported while using @GenerateDao");
             }
 
             if ((field.getAnnotation(Default.class) != null)) {
@@ -162,8 +151,7 @@ public final class CreateDaoUtils {
 
 
             if (ClassName.get(field.asType()).isPrimitive()) {
-                messager.printMessage(Diagnostic.Kind.ERROR, "Primitive type cannot be added to predicate list \n "
-                        + "please check the type declared in the class with @GenerateDao");
+                MessagingUtils.error(messager, field, "Primitive types are not supported while using @GenerateDao");
             }
 
             if ((field.getAnnotation(Transient.class) == null) && (field.getAnnotation
@@ -429,12 +417,13 @@ public final class CreateDaoUtils {
      * @param entityClass      Entity class annotated with {@linkplain GenerateDao} annotation
      * @param annotatedElement Element of the entity class
      * @param typeElement      Represents a class or interface annotated element
+     * @param messager         Messager for logging
      * @return Generates method which returns a row of the entity table with value of the field annotated with @Id
      * {@linkplain Id}
      * @see "/testfiles/generatedao_output1.txt #getById()"
      */
     public static MethodSpec createGetByIdMethod(final ClassName entityClass, final Element annotatedElement,
-                                                 final TypeElement typeElement) {
+                                                 final TypeElement typeElement, final Messager messager) {
 
         for (Element variableElement : annotatedElement.getEnclosedElements()) {
             if (variableElement instanceof VariableElement && variableElement.getAnnotation(Id.class) != null) {
@@ -448,8 +437,10 @@ public final class CreateDaoUtils {
 
             }
         }
-        throw new AssertionError("No field found with @Id annotation in class "
-                + AnnotatedClassUtils.getSimpleName(typeElement));
+
+        MessagingUtils.error(messager, annotatedElement, "No field found with @Id annotation in class %s",
+                AnnotatedClassUtils.getSimpleName(typeElement));
+        throw new AssertionError("No field found with @Id annotation in class " + AnnotatedClassUtils.getSimpleName(typeElement));
 
     }
 
@@ -473,10 +464,12 @@ public final class CreateDaoUtils {
      * Validation for the class annotated with {@linkplain GenerateDao}.
      *
      * @param roundEnv contains all the classes/elements of the project
+     * @param messager Messager for logging
      */
-    public static void entityValidation(final RoundEnvironment roundEnv) {
+    public static void entityValidation(final RoundEnvironment roundEnv, final Messager messager) {
         roundEnv.getElementsAnnotatedWith(GenerateDao.class).stream().filter(annotatedElement -> annotatedElement
                 .getAnnotation(Entity.class) == null).forEach(annotatedElement -> {
+            MessagingUtils.error(messager, annotatedElement, "@GenerateDao can only be used for Entity Classes");
             throw new AssertionError("@GenerateDao can only be used for Entity Classes " + AnnotatedClassUtils
                     .getSimpleName((TypeElement) annotatedElement));
         });

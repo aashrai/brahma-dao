@@ -83,8 +83,7 @@ public class DaoProcessorTest {
                 .that(input)
                 .processedWith(new DaoProcessor())
                 .failsToCompile()
-                .withErrorContaining("Primitive type cannot be added to predicate list.Please check the type declared" +
-                        " in the class with @GenerateDao");
+                .withErrorContaining("Primitive types are not supported while using @GenerateDao");
 
 
     }
@@ -132,6 +131,7 @@ public class DaoProcessorTest {
                     "BrahmaEntity", e.getMessage());
         }
     }
+
     @Test
     public void generateDaoSupportSearchVariationsTest() {
 
@@ -158,7 +158,6 @@ public class DaoProcessorTest {
                 .generatesSources(output);
 
     }
-
 
 
 }
